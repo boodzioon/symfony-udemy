@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Services;
+use App\Services\MySecondService;
+
+trait OptionalServiceTrait
+{
+
+    public $service;
+
+    /**
+     * @required
+     */
+    public function setSecondService(MySecondService $secondService)
+    {
+        $this->service = $secondService;
+    }
+}
