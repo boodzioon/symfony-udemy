@@ -26,6 +26,11 @@ class Video extends File
      */
     private $created_at;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=SecurityUser::class, inversedBy="videos")
+     */
+    private $securityUser;
+
     public function getFormat(): ?string
     {
         return $this->format;
@@ -58,6 +63,18 @@ class Video extends File
     public function setCreatedAt(\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getSecurityUser(): ?SecurityUser
+    {
+        return $this->securityUser;
+    }
+
+    public function setSecurityUser(?SecurityUser $securityUser): self
+    {
+        $this->securityUser = $securityUser;
 
         return $this;
     }
