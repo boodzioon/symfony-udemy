@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Events\VideoCreatedEvent;
 use App\Form\MovieFormType;
+use Doctrine\ORM\Query\Expr\Func;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DefaultController extends AbstractController
@@ -41,7 +44,7 @@ class DefaultController extends AbstractController
     /**
      * @Route("/", name="default")
      */
-    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service): Response
+    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service, Swift_Mailer $mailer): Response
     {
         // dump($container->get('app.myservice'));
 
@@ -57,6 +60,7 @@ class DefaultController extends AbstractController
         // $myService->doSomething();
         // $this->cacheTest();
         // $this->createEvents();
+        $this->mailTest($mailer);
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
@@ -290,6 +294,26 @@ class DefaultController extends AbstractController
         dump($dell->get());
         dump($ibm->get());
         dump($apple->get());
+    }
+
+    private function mailTest(Swift_Mailer $mailer)
+    {
+        $message = new Swift_Message('Hello Email!');
+        $message
+            ->setFrom('boodzioo_n@o2.pl')
+            ->setTo('boodzioo_n@o2.pl')
+            ->setBody(
+                $this->renderView(
+                    'emails/registration.html.twig',
+                    [
+                        'name' => 'Robert'
+                    ]
+                ),
+                'text/html'
+            )
+        ;
+
+        $result = $mailer->send($message);
     }
 
     private function addData()
