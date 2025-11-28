@@ -167,8 +167,13 @@ class DefaultController extends AbstractController
      */
     public function secured(Request $request)
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // VideoVoter
+        $em = $this->getDoctrine()->getManager();
+        $video = $em->getRepository(Video::class)->find(1);
+        $this->denyAccessUnlessGranted('VIDEO_DELETE', $video);
 
         return $this->render('default/secured.html.twig', [
             'controller_name' => 'DefaultController'
