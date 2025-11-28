@@ -33,6 +33,7 @@ use Swift_Message;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class DefaultController extends AbstractController
 {
@@ -49,7 +50,7 @@ class DefaultController extends AbstractController
     /**
      * @Route("/", name="default")
      */
-    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service, Swift_Mailer $mailer): Response
+    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service, Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder): Response
     {
         // dump($container->get('app.myservice'));
 
@@ -65,6 +66,7 @@ class DefaultController extends AbstractController
         // $myService->doSomething();
         // $this->cacheTest();
         // $this->createEvents();
+        $this->lesson91Security($passwordEncoder);
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
@@ -147,6 +149,43 @@ class DefaultController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error
+        ]);
+    }
+
+    /**
+     * @Route("/admin", name="admin")
+     */
+    public function admin(Request $request)
+    {
+        return $this->render('default/blank.html.twig', [
+            'controller_name' => 'DefaultController'
+        ]);
+    }
+
+    /**
+     * @Route("/secured", name="secured")
+     */
+    public function secured(Request $request)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        return $this->render('default/secured.html.twig', [
+            'controller_name' => 'DefaultController'
+        ]);
+    }
+
+    /**
+     * @Route("/video/{id}/delete", name="video-delete")
+     * @Security("user.getId() == video.getSecurityUser().getId() or has_role('ROLE_ADMIN')")
+     */
+    public function videoDelete(Request $request, Video $video, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->lesson91Security($passwordEncoder);
+        dump($video);
+
+        return $this->render('default/blank.html.twig', [
+            'controller_name' => 'DefaultController'
         ]);
     }
 
@@ -543,6 +582,71 @@ class DefaultController extends AbstractController
         // dump($user1->getFollowed()->count());
         // dump($user1->getFollowing()->count());
         // dump($user2->getFollowing()->count());
+    }
+
+    private function lesson91Security(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $sUsers = $em->getRepository(SecurityUser::class)->findAll();
+        dump($sUsers);
+
+        $user = $em->getRepository(SecurityUser::class)->findOneBy(['email' => 'user@domain.com']);
+        if (!$user) {
+            $user = new SecurityUser;
+            $user->setEmail('user@domain.com');
+            $password = $passwordEncoder->encodePassword($user, 'passw');
+            $user->setPassword($password);
+            $em->persist($user);
+            $em->flush();
+        }
+
+        if ($user->getVideos()->count() == 0) {
+            $uVideo = new Video;
+            $uVideo->setFilename('Video Path');
+            $uVideo->setDescription('Video Description');
+            $uVideo->setCreatedAt(new \DateTime());
+            $uVideo->setSize(532511);
+            $uVideo->setDuration(157);
+            $uVideo->setFormat('mpeg');
+            $em->persist($uVideo);
+
+            $user->addVideo($uVideo);
+            $em->persist($user);
+        } else {
+            $uVideo = $user->getVideos()[0];
+        }
+
+        $admin = $em->getRepository(SecurityUser::class)->findOneBy(['email' => 'admin@domain.com']);
+        if (!$admin) {
+            $admin = new SecurityUser;
+            $admin->setEmail('admin@domain.com');
+            $password = $passwordEncoder->encodePassword($admin, 'passw');
+            $admin->setPassword($password);
+            $admin->setRoles(['ROLE_ADMIN']);
+            $em->persist($admin);
+        }
+
+        if ($admin->getVideos()->count() == 0) {
+            $video = new Video;
+            $video->setFilename('Video Path');
+            $video->setDescription('Video Description');
+            $video->setCreatedAt(new \DateTime());
+            $video->setSize(532511);
+            $video->setDuration(157);
+            $video->setFormat('mpeg');
+            $em->persist($video);
+
+            $admin->addVideo($video);
+            $em->persist($admin);
+        } else {
+            $video = $admin->getVideos()[0];
+        }
+
+        $em->flush();
+        dump($user->getId());
+        dump($uVideo->getId());
+        dump($admin->getId());
+        dump($video->getId());
     }
 
     public function mostPopularPosts($number = 3)

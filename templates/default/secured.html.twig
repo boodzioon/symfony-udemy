@@ -33,9 +33,11 @@
 				</code>
 			</li>
 		</ul>
-
-		{% if form is defined %}
-			{{ form(form) }}
+		
+		{% if is_granted('ROLE_ADMIN') %}
+			<div>
+				<p>ADMIN</p>
+			</div>
 		{% endif %}
 	</div>
 {% endblock %}
