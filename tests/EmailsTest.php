@@ -10,7 +10,7 @@ class EmailsTest extends WebTestCase
     {
         $client = static::createClient();
         $client->enableProfiler();
-        $crawler = $client->request('GET', '/');
+        $crawler = $client->request('GET', '/blank');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('h1', 'Hello DEFAULTCONTROLLER!');

@@ -66,7 +66,7 @@ class DefaultController extends AbstractController
         // $myService->doSomething();
         // $this->cacheTest();
         // $this->createEvents();
-        $this->lesson91Security($passwordEncoder);
+        // $this->lesson91Security($passwordEncoder);
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
@@ -176,6 +176,18 @@ class DefaultController extends AbstractController
         $this->denyAccessUnlessGranted('VIDEO_DELETE', $video);
 
         return $this->render('default/secured.html.twig', [
+            'controller_name' => 'DefaultController'
+        ]);
+    }
+
+    /**
+     * @Route("/blank", name="blank")
+     */
+    public function blank(Request $request, Swift_Mailer $swift)
+    {
+        $this->mailTest($swift);
+
+        return $this->render('default/blank.html.twig', [
             'controller_name' => 'DefaultController'
         ]);
     }
