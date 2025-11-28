@@ -62,7 +62,7 @@ class DefaultController extends AbstractController
         // $this->dumpUser();
         // $this->dumpEntities();
         // $this->addFollowers();
-        $users = $this->findUsersRaw();
+        // $users = $this->findUsersRaw();
         // $myService->doSomething();
         // $this->cacheTest();
         // $this->createEvents();
@@ -70,7 +70,8 @@ class DefaultController extends AbstractController
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
-            'users' => $users,
+            'users' => [],
+            // 'users' => $users,
             'random_gift' => $gifts->gifts
         ]);
     }

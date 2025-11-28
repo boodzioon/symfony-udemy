@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DefaultControllerTest extends WebTestCase
 {
+
     public function testSomething(): void
     {
         $client = static::createClient();
@@ -35,5 +36,24 @@ class DefaultControllerTest extends WebTestCase
         );
         $this->assertStringContainsString('This friendly message is coming from', $client->getResponse()->getContent());
         $this->assertRegExp('/GAcode-(123)?/', $client->getResponse()->getContent(), 'Content contains RegExp"foo(bar)"');
+    }
+
+    /**
+     * @dataProvider provideUrls
+     */
+    public function testUrls($url): void
+    {
+        $client = $this->createClient();
+        $crawler = $client->request('GET', $url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+    }
+
+    public function provideUrls()
+    {
+        return [
+            ['/home'],
+            ['/login']
+        ];
     }
 }

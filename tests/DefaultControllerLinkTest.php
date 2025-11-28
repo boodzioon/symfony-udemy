@@ -9,7 +9,7 @@ class DefaultControllerLinkTest extends WebTestCase
     public function testSomething(): void
     {
         $client = static::createClient();
-        $crawler = $client->request('GET', '/home');
+        $crawler = $client->request('GET', '/');
         $link = $crawler->filter('a:contains("Login")')->link();
 
         $crawler = $client->click($link);
