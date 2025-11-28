@@ -99,6 +99,12 @@
 		<br>{{ absolute_url(asset('images/logo.png')) }}
 		<img src="{{ absolute_url(asset('images/logo.png')) }}" alt="Symfony 4 Course" />
 		{{ string|escape('html') }}
+
+		{% if app.user %}
+			<a href="{{ path('logout' )}}">Logout</a>
+		{% else %}
+			<a href="{{ path('login' )}}">Login</a>
+		{% endif %}
 	</div>
 
 	{{render(controller(

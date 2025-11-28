@@ -7,6 +7,7 @@ use App\Entity\Author;
 use App\Entity\File;
 use App\Entity\Movie;
 use App\Entity\Pdf;
+use App\Entity\SecurityUser;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Services\GiftsService;
@@ -23,11 +24,15 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Events\VideoCreatedEvent;
+use App\Form\LoginUserType;
 use App\Form\MovieFormType;
+use App\Form\RegisterUserType;
 use Doctrine\ORM\Query\Expr\Func;
 use Swift_Mailer;
 use Swift_Message;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class DefaultController extends AbstractController
 {
@@ -60,7 +65,6 @@ class DefaultController extends AbstractController
         // $myService->doSomething();
         // $this->cacheTest();
         // $this->createEvents();
-        $this->mailTest($mailer);
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
@@ -99,6 +103,50 @@ class DefaultController extends AbstractController
             'users' => [],
             'random_gift' => $gifts->gifts,
             'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/register", name="register")
+     */
+    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $em = $this->getDoctrine()->getManager();
+        dump($em->getRepository(SecurityUser::class)->findAll());
+
+        $user = new SecurityUser();
+        $form = $this->createForm(RegisterUserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user->setPassword(
+                $passwordEncoder->encodePassword($user, $form->get('password')->getData())
+            );
+            $user->setEmail($form->get('email')->getData());
+
+            $em->persist($user);
+            $em->flush();
+
+            return $this->redirect('register');
+        }
+
+        return $this->render('default/blank.html.twig', [
+            'controller_name' => 'DefaultController',
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/login", name="login")
+     */
+    public function login(Request $request, UserPasswordEncoderInterface $passwordEncoder, AuthenticationUtils $authenticationUtils)
+    {
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error
         ]);
     }
 
