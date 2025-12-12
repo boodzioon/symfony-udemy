@@ -34,6 +34,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DefaultController extends AbstractController
 {
@@ -50,8 +51,13 @@ class DefaultController extends AbstractController
     /**
      * @Route("/", name="default")
      */
-    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service, Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder): Response
+    public function index(GiftsService $gifts, Request $request, SessionInterface $session, ContainerInterface $container, ServiceInterface $service, Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator): Response
     {
+        $trans = $translator->trans('some.key');
+        dump($request->getLocale() . ': ' . $trans);
+
+        $trans = $translator->trans('symfony.learning', ['transChoice' => 1]);
+        dump($request->getLocale() . ': ' . $trans);
         // dump($container->get('app.myservice'));
 
         // $this->addData();
@@ -72,12 +78,17 @@ class DefaultController extends AbstractController
             'controller_name' => 'DefaultController',
             'users' => [],
             // 'users' => $users,
-            'random_gift' => $gifts->gifts
+            'random_gift' => $gifts->gifts,
+            'choice' => 2
         ]);
     }
 
     /**
-     * @Route("/form", name="form")
+     * @Route({
+     *  "en": "/form",
+     *  "fr": "/formatta",
+     *  "pl": "/formularz"
+     * }, name="form")
      */
     public function form(GiftsService $gifts, Request $request)
     {

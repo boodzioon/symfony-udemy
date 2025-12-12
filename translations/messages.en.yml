@@ -1,0 +1,5 @@
+some:
+  key: 'Whoah!'
+  test: 'Test translation'
+Symfony jest <b>super</b>: Symfony is <b>great</b>
+symfony.learning: "I haven't started learning Symfony|I've been learning Symfony for one week|I've been learning Symfony for two weeks|I've been learning Symfony for three weeks"

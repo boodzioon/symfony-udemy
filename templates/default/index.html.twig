@@ -21,6 +21,18 @@
 	</style>
 
 	<div class="example-wrapper">
+		<h1>
+			{{ 'symfony.learning'|transchoice(choice) }}
+			{% trans %}
+				Symfony jest <b>super</b>
+			{% endtrans %}! 
+			{% trans %}
+				some.key
+			{% endtrans %}
+			{% trans %}
+				some.test
+			{% endtrans %}!
+		</h1>
 		<h1>Hello {{ controller_name|upper }}! ✅</h1>
 
 		This friendly message is coming from:
